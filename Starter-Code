@@ -1,0 +1,35 @@
+utils.py
+
+import pandas as pd
+
+def load_routes(path="data/routes.csv"):
+    return pd.read_csv(path)
+
+
+calculate_costs.py
+
+import pandas as pd
+
+def calculate_route_costs(df):
+    df["Total_Cost"] = df["Distance_miles"] * df["Rate_per_mile"]
+    df["Transit_Time"] = df["Distance_miles"] / df["Avg_Speed_mph"]
+    return df
+
+
+optimize_route.py
+
+from utils import load_routes
+from calculate_costs import calculate_route_costs
+
+def optimize_route():
+    df = load_routes()
+
+    df = calculate_route_costs(df)
+
+    best_route = df.sort_values(by="Total_Cost").head(1)
+
+    print("Best Route Based on Cost:")
+    print(best_route)
+
+if __name__ == "__main__":
+    optimize_route()
