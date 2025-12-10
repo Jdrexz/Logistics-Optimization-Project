@@ -1,0 +1,11 @@
+freight-route-optimizer/
+│── data/
+│   └── routes.csv
+│── src/
+│   ├── calculate_costs.py
+│   ├── optimize_route.py
+│   └── utils.py
+│── notebooks/
+│   └── route_analysis.ipynb
+│── README.md
+│── requirements.txt
