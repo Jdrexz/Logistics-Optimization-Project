@@ -1,0 +1,11 @@
+# Logistics Optimization
+A small linear programming example that assigns shipments to carriers to minimize total cost subject to carrier capacity constraints.
+
+**How to run**
+1. `pip install -r requirements.txt`
+2. `python main.py`
+
+**Customize**
+- Replace the sample cost matrix with real cost data (CSV).
+- Add constraints for weight, volume, or routing distance.
+- Integrate with your TMS or routing API to pull actual carrier costs.
