@@ -1,0 +1,71 @@
+# main.py
+"""
+Logistics Optimization
+- Simple cost-minimization example assigning shipments to carriers/routes.
+- Uses PuLP (linear programming) to solve an assignment problem.
+Run: python main.py
+"""
+
+import os
+import pandas as pd      # pandas helps create and display the cost matrices
+import pulp             # PuLP for linear programming
+
+# **CHANGE**: adjust nodes, capacities, costs to model your real scenario
+def create_sample_problem():
+    # Example shipments and carriers
+    shipments = ["S1","S2","S3","S4"]
+    carriers = ["C1","C2","C3"]
+    # cost to ship each shipment by each carrier (currency units)
+    cost = {
+        ("S1","C1"): 120,
+        ("S1","C2"): 150,
+        ("S1","C3"): 100,
+        ("S2","C1"): 200,
+        ("S2","C2"): 180,
+        ("S2","C3"): 220,
+        ("S3","C1"): 50,
+        ("S3","C2"): 60,
+        ("S3","C3"): 40,
+        ("S4","C1"): 300,
+        ("S4","C2"): 250,
+        ("S4","C3"): 280,
+    }
+    # capacity for each carrier (# of shipments they can accept)
+    capacity = {"C1":2, "C2":1, "C3":2}
+    return shipments, carriers, cost, capacity
+
+def solve_assignment(shipments, carriers, cost, capacity):
+    # Create LP problem
+    prob = pulp.LpProblem("ShipmentAssignment", pulp.LpMinimize)
+    # Decision variables x[s,c] in {0,1}
+    x = pulp.LpVariable.dicts("assign", (shipments, carriers), lowBound=0, upBound=1, cat="Binary")
+    # Objective: minimize total cost
+    prob += pulp.lpSum([ cost[(s,c)] * x[s][c] for s in shipments for c in carriers ])
+    # Each shipment must be assigned to exactly one carrier
+    for s in shipments:
+        prob += pulp.lpSum([ x[s][c] for c in carriers ]) == 1
+    # Carrier capacities
+    for c in carriers:
+        prob += pulp.lpSum([ x[s][c] for s in shipments ]) <= capacity[c]
+    # Solve
+    prob.solve()
+    # Collect solution
+    assignment = []
+    for s in shipments:
+        for c in carriers:
+            if pulp.value(x[s][c]) >= 0.9:
+                assignment.append((s, c, cost[(s,c)]))
+    total_cost = pulp.value(prob.objective)
+    return assignment, total_cost
+
+def main():
+    shipments, carriers, cost, capacity = create_sample_problem()
+    assignment, total_cost = solve_assignment(shipments, carriers, cost, capacity)
+    print("Optimal assignment (shipment, carrier, cost):")
+    for a in assignment:
+        print(a)
+    print("Total cost:", total_cost)
+    # **CHANGE**: replace with real shipments, expand to consider capacities in weight/volume and multiple constraints
+
+if __name__ == "__main__":
+    main()
